@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusTrack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-gray-800 p-4 flex items-center justify-between shadow-md">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap text-yellow-500 mr-2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            <span class="text-xl font-bold text-white">NexusTrack</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <input type="date" id="start-date" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-md text-sm">
+                <span class="text-gray-400">to</span>
+                <input type="date" id="end-date" class="bg-gray-700 text-gray-300 px-3 py-1 rounded-md text-sm">
+                <button id="apply-date-range" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-1 px-3 rounded-md text-sm transition duration-200 ease-in-out">Apply</button>
+                <button id="reset-date-range" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-1 px-3 rounded-md text-sm transition duration-200 ease-in-out">Reset</button>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="manage-categories-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-2 px-3 rounded-md text-sm transition duration-200 ease-in-out flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag mr-1">
+                        <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/>
+                        <path d="M7 7h.01"/>
+                    </svg>
+                    Categories
+                </button>
+                <button id="add-transaction-btn" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-md flex items-center transition duration-200 ease-in-out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus mr-1">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    Add Transaction
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 p-6 overflow-y-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+            <div class="card">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-semibold text-gray-300">Total Income</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up">
+                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                        <polyline points="16 7 22 7 22 13"/>
+                    </svg>
+                </div>
+                <p id="total-income" class="text-3xl font-bold text-green-500">$6,750.00</p>
+                <p class="text-sm text-gray-400">Total income in the selected period</p>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-semibold text-gray-300">Total Expenses</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down">
+                        <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/>
+                        <polyline points="16 17 22 17 22 11"/>
+                    </svg>
+                </div>
+                <p id="total-expenses" class="text-3xl font-bold text-red-500">$2,040.50</p>
+                <p class="text-sm text-gray-400">Total expenses in the selected period</p>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-semibold text-gray-300">Net Savings</h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wallet text-blue-400">
+                        <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h12a2 2 0 0 1 0 4H5a2 2 0 0 0 0 4h12a2 2 0 0 0 2-2v-3"/>
+                        <path d="M22 7v7c0 1.1-.9 2-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/>
+                    </svg>
+                </div>
+                <p id="net-savings" class="text-3xl font-bold text-blue-400">$4,709.50</p>
+                <p class="text-sm text-gray-400">Income minus expenses</p>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-semibold text-gray-300">Monthly Budget</h3>
+                    <button id="edit-budget-btn" class="text-gray-400 hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <p id="monthly-budget" class="text-3xl font-bold text-purple-400">$3,500.00</p>
+                <p class="text-sm text-gray-400">Budget for <span id="current-month-display">July 2025</span></p>
+                <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+                    <div id="budget-progress" class="bg-yellow-500 h-2 rounded-full" style="width: 58%"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">$2,040.50 of $3,500.00 spent</p>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-semibold text-gray-300">Spending Goal</h3>
+                    <button id="edit-goal-btn" class="text-gray-400 hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil">
+                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <p id="savings-goal" class="text-3xl font-bold text-yellow-400">$1,250.00</p>
+                <p class="text-sm text-gray-400">Savings goal for this month</p>
+                <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+                    <div id="savings-progress" class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">$937.50 saved of $1,250.00 goal</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="card lg:col-span-1">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-300 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb mr-2 text-blue-300">
+                            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/>
+                            <path d="M9 18h6"/>
+                            <path d="M10 22h4"/>
+                        </svg>
+                        AI Financial Insights
+                    </h3>
+                    <button id="refresh-insights-btn" class="text-blue-400 hover:text-blue-300 text-sm transition duration-200 ease-in-out">Refresh</button>
+                </div>
+                <p class="text-sm text-gray-400 mb-4">Personalized tips to improve your financial health.</p>
+                <div id="ai-insights-content" class="text-gray-300 text-sm italic">
+                    Click "Refresh" for a tip!
+                </div>
+            </div>
+
+            <div class="card lg:col-span-1">
+                <h3 class="text-lg font-semibold text-gray-300 flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-3 mr-2 text-orange-300">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Upcoming Payments
+                </h3>
+                <p class="text-sm text-gray-400 mb-4">Your recurring expenses due soon.</p>
+                <div id="upcoming-payments-list" class="space-y-4"></div>
+                <button id="add-upcoming-payment-btn" class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-1 px-3 rounded-md text-sm">Add Payment</button>
+            </div>
+
+            <div class="card lg:col-span-1 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-300 mb-4">Savings vs. Spending</h3>
+                <p class="text-sm text-gray-400 mb-4 text-center">An overview of your savings against your spending.</p>
+                <div class="w-48 h-48 relative">
+                    <canvas id="savingsSpendingChart"></canvas>
+                </div>
+                <div class="text-center mt-4">
+                    <p class="text-sm text-gray-400">Total Income</p>
+                    <p id="savings-spending-total-income" class="text-2xl font-bold text-gray-200">$6,750.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="card lg:col-span-1">
+                <h3 class="text-lg font-semibold text-gray-300 mb-4">Income vs. Expense</h3>
+                <p class="text-sm text-gray-400 mb-4">A daily comparison of your income and expenses.</p>
+                <div class="h-64">
+                    <canvas id="incomeExpenseChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card lg:col-span-1 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-300 mb-4">Expense Breakdown</h3>
+                <p class="text-sm text-gray-400 mb-4 text-center">A look at where your money is going by category.</p>
+                <div class="w-48 h-48 relative">
+                    <canvas id="expenseBreakdownChart"></canvas>
+                </div>
+                <div class="flex flex-wrap justify-center gap-2 mt-4 text-xs">
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-yellow-500 mr-1"></span>
+                        <span class="text-gray-300">Housing</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-1"></span>
+                        <span class="text-gray-300">Food</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-purple-500 mr-1"></span>
+                        <span class="text-gray-300">Transport</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-red-500 mr-1"></span>
+                        <span class="text-gray-300">Entertainment</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-green-500 mr-1"></span>
+                        <span class="text-gray-300">Utilities</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-pink-500 mr-1"></span>
+                        <span class="text-gray-300">Other</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card lg:col-span-1">
+                <h3 class="text-lg font-semibold text-gray-300 mb-4">Balance Over Time</h3>
+                <p class="text-sm text-gray-400 mb-4">Your account balance throughout the selected period.</p>
+                <div class="h-64">
+                    <canvas id="balanceOverTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
+                <h3 class="text-lg font-semibold text-gray-300">Transactions</h3>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <div class="relative">
+                        <input type="text" id="transaction-search" placeholder="Search transactions..." class="bg-gray-700 border border-gray-600 text-gray-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent w-full sm:w-64">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute right-3 top-2.5 text-gray-400">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.3-4.3"/>
+                        </svg>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="export-csv-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-2 px-4 rounded-md text-sm transition duration-200 ease-in-out flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text mr-1">
+                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                                <path d="M10 9H8"/>
+                                <path d="M16 13H8"/>
+                                <path d="M16 17H8"/>
+                            </svg>
+                            CSV
+                        </button>
+                        <button id="export-pdf-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-2 px-4 rounded-md text-sm transition duration-200 ease-in-out flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text mr-1">
+                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                                <path d="M10 9H8"/>
+                                <path d="M16 13H8"/>
+                                <path d="M16 17H8"/>
+                            </svg>
+                            PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-400 mb-4">Recent transactions from your accounts.</p>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer" data-sort-by="date">
+                                Date
+                                <span class="ml-1 flex flex-col items-center inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                                </span>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer" data-sort-by="category">
+                                Category
+                                <span class="ml-1 flex flex-col items-center inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                                </span>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer" data-sort-by="type">
+                                Type
+                                <span class="ml-1 flex flex-col items-center inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                                </span>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer" data-sort-by="amount">
+                                Amount
+                                <span class="ml-1 flex flex-col items-center inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                                </span>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-table-body" class="divide-y divide-gray-800">
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+                <div id="pagination-info" class="text-sm text-gray-400">Showing 1-5 of 15 transactions</div>
+                <div class="flex space-x-2">
+                    <button id="prev-page" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-1 px-3 rounded-md text-sm transition duration-200 ease-in-out flex items-center disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left mr-1">
+                            <path d="m15 18-6-6 6-6"/>
+                        </svg>
+                        Prev
+                    </button>
+                    <button id="next-page" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold py-1 px-3 rounded-md text-sm transition duration-200 ease-in-out flex items-center">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right ml-1">
+                            <path d="m9 18 6-6-6-6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="addTransactionModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-xl font-bold text-gray-200 mb-4" id="transaction-modal-title">Add New Transaction</h2>
+            <form id="transactionForm" class="space-y-4">
+                <input type="hidden" id="transaction-id">
+                <div>
+                    <label for="transactionDate" class="block text-sm font-medium text-gray-300">Date</label>
+                    <input type="date" id="transactionDate" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" required>
+                </div>
+                <div>
+                    <label for="transactionCategory" class="block text-sm font-medium text-gray-300">Category</label>
+                    <select id="transactionCategory" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" required>
+                        <option value="">Select a category</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="transactionType" class="block text-sm font-medium text-gray-300">Type</label>
+                    <select id="transactionType" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="transactionAmount" class="block text-sm font-medium text-gray-300">Amount</label>
+                    <input type="number" id="transactionAmount" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" step="0.01" required>
+                </div>
+                <div>
+                    <label for="transactionDescription" class="block text-sm font-medium text-gray-300">Description (Optional)</label>
+                    <textarea id="transactionDescription" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" rows="2"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-md transition duration-200 ease-in-out">Save Transaction</button>
+            </form>
+        </div>
+    </div>
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-category-modal">&times;</span>
+            <h2 class="text-xl font-bold text-gray-200 mb-4">Manage Categories</h2>
+            <div class="space-y-4">
+                <div class="flex space-x-2">
+                    <input type="text" id="new-category-name" placeholder="New category name" class="flex-1 bg-gray-700 border border-gray-600 text-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                    <button id="add-category-btn" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-md transition duration-200 ease-in-out">Add</button>
+                </div>
+                <div id="categories-list" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
+            </div>
+        </div>
+    </div>
+    <div id="budgetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-budget-modal">&times;</span>
+            <h2 class="text-xl font-bold text-gray-200 mb-4">Set Budget & Goals</h2>
+            <form id="budgetForm" class="space-y-4">
+                <div>
+                    <label for="monthly-budget-input" class="block text-sm font-medium text-gray-300">Monthly Budget ($)</label>
+                    <input type="number" id="monthly-budget-input" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" step="10" min="0" required>
+                </div>
+                <div>
+                    <label for="savings-goal-input" class="block text-sm font-medium text-gray-300">Savings Goal ($)</label>
+                    <input type="number" id="savings-goal-input" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-gray-200 p-2" step="10" min="0" required>
+                </div>
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-4 rounded-md transition duration-200 ease-in-out">Save Settings</button>
+            </form>
+        </div>
+    </div>
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content">
+            <p id="customAlertMessage" class="text-gray-200 mb-4"></p>
+            <button id="customAlertCloseBtn" class="bg-yellow-500 text-gray-900 font-semibold py-2 px-4 rounded-md">OK</button>
+        </div>
+    </div>
+    <div id="loadingOverlay" class="modal">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"> </script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+ <script src="main.js"></script>
+</body>
+</html>
